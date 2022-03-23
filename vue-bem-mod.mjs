@@ -1,6 +1,6 @@
-const { B: BemCompilerLib } = require('b_');
-const find = require('lodash.find');
-const noop = require('lodash.noop');
+import { B as BemCompilerLib } from 'b_';
+import find from 'lodash.find';
+import noop from 'lodash.noop';
 
 const defaultBemCompiler = BemCompilerLib();
 
@@ -66,7 +66,7 @@ function processChildrenWithBem(children, { bemBlock: parentBemBlock, bemCompone
   });
 }
 
-function install(Vue) {
+export function install(Vue) {
   Vue.component('bem', {
     functional: true,
     render(_, { children, data: { directives } = {} } = {}) {
@@ -93,9 +93,6 @@ function install(Vue) {
   Vue.directive('bem-elem', noop);
 }
 
-module.exports = {
-  install
-}
 
 /* Vue.config.optionMergeStrategies.render = (parentVal, childVal) => {
   console.log(parentVal, childVal);
