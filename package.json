@@ -1,6 +1,6 @@
 {
   "name": "vue-bem-mod",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "dist/vue-bem-mod.js",
   "module": "vue-bem-mod.mjs",
@@ -12,8 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "b_": "^1.3.4",
-    "lodash.find": "^4.6.0",
-    "lodash.noop": "^3.0.1"
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@babel/core": "^7.17.8",

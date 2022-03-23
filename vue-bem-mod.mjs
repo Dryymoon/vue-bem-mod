@@ -1,8 +1,6 @@
-import { B as BemCompilerLib } from 'b_';
-import find from 'lodash.find';
-import noop from 'lodash.noop';
-
-const defaultBemCompiler = BemCompilerLib();
+import defaultBemCompiler from 'b_';
+import find from 'lodash/find.js';
+import noop from 'lodash/noop.js';
 
 function processChildrenWithBem(children, { bemBlock: parentBemBlock, bemComponentCall } = {}) {
   children.forEach((child) => {
