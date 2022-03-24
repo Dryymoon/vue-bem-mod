@@ -1,6 +1,40 @@
-import defaultBemCompiler from 'b_';
-import find from 'lodash/find.js';
-import noop from 'lodash/noop.js';
+const options = {};
+const tailSpace = options.tailSpace || '';
+const elementSeparator = options.elementSeparator || '__';
+const modSeparator = options.modSeparator || '_';
+const modValueSeparator = options.modValueSeparator || '_';
+const classSeparator = options.classSeparator || ' ';
+const isFullModifier = typeof options.isFullModifier === 'undefined' ? true : options.isFullModifier;
+const isFullBoolValue = typeof options.isFullBoolValue === 'undefined' ? false : options.isFullBoolValue;
+
+export default { install };
+
+function install(Vue, options) {
+  Vue.component('bem', {
+    functional: true,
+    render(_, { children, data: { directives } = {} } = {}) {
+      let bemBlock;
+
+      if (directives) {
+        const { arg, value, expression } = findByObjMatch(directives, { name: 'bem-block' }) || {};
+        bemBlock = arg || value || expression;
+      }
+
+      if (children) {
+        processChildrenWithBem(
+          children,
+          { bemBlock, bemComponentCall: true }
+        );
+      }
+
+      return children;
+    }
+  });
+
+
+  Vue.directive('bem-block', () => undefined);
+  Vue.directive('bem-elem', () => undefined);
+}
 
 function processChildrenWithBem(children, { bemBlock: parentBemBlock, bemComponentCall } = {}) {
   children.forEach((child) => {
@@ -17,14 +51,14 @@ function processChildrenWithBem(children, { bemBlock: parentBemBlock, bemCompone
 
     if (child.data) {
       if (child.data.directives) {
-        const { arg, value, modifiers } = find(child.data.directives, { name: 'bem-block' }) || {}; // expression,
+        const { arg, value, modifiers } = findByObjMatch(child.data.directives, { name: 'bem-block' }) || {}; // expression,
         newBemBlock = arg; // || value || expression;
         // if (arg && value) bemMods = { ...value, ...modifiers };
         if (newBemBlock) bemMods = { ...modifiers, ...value };
       }
 
       if (child.data.directives) {
-        const { arg, value, modifiers } = find(child.data.directives, { name: 'bem-elem' }) || {}; // expression,
+        const { arg, value, modifiers } = findByObjMatch(child.data.directives, { name: 'bem-elem' }) || {}; // expression,
         bemElem = arg; //  || value || expression;
         // if (arg && value) bemMods = { ...bemMods, ...value, ...modifiers };
         // bemMods = { ...bemMods, ...modifiers };
@@ -37,14 +71,14 @@ function processChildrenWithBem(children, { bemBlock: parentBemBlock, bemCompone
         child.data = child.data || {};
         child.data.staticClass = child.data.staticClass || '';
         if (child.data.staticClass) child.data.staticClass += ' ';
-        child.data.staticClass = child.data.staticClass + defaultBemCompiler(newBemBlock || parentBemBlock, bemElem, bemMods);
+        child.data.staticClass = child.data.staticClass + BEM(newBemBlock || parentBemBlock, bemElem, bemMods);
       }
 
       if (newBemBlock && !bemElem) {
         child.data = child.data || {};
         child.data.staticClass = child.data.staticClass || '';
         if (child.data.staticClass) child.data.staticClass += ' ';
-        child.data.staticClass = child.data.staticClass + defaultBemCompiler(newBemBlock, null, bemMods);
+        child.data.staticClass = child.data.staticClass + BEM(newBemBlock, null, bemMods);
       }
     }
 
@@ -64,48 +98,75 @@ function processChildrenWithBem(children, { bemBlock: parentBemBlock, bemCompone
   });
 }
 
-export function install(Vue) {
-  Vue.component('bem', {
-    functional: true,
-    render(_, { children, data: { directives } = {} } = {}) {
-      let bemBlock;
-
-      if (directives) {
-        const { arg, value, expression } = find(directives, { name: 'bem-block' }) || {};
-        bemBlock = arg || value || expression;
-      }
-
-      if (children) {
-        processChildrenWithBem(
-          children,
-          { bemBlock, bemComponentCall: true }
-        );
-      }
-
-      return children;
-    }
-  });
-
-
-  Vue.directive('bem-block', noop);
-  Vue.directive('bem-elem', noop);
+function findByObjMatch(arrOfObj, needle) {
+  if (!Array.isArray(arrOfObj)) return;
+  const keys = Object.keys(needle);
+  for (let inspected of arrOfObj) {
+    if (!inspected) continue;
+    if (typeof inspected !== 'object') continue;
+    if (keys.every(key => inspected[key] === needle[key])) return inspected;
+  }
 }
 
+function _stringifyModifier(base, modifierKey, modifierValue) {
+  var result = '';
 
-/* Vue.config.optionMergeStrategies.render = (parentVal, childVal) => {
-  console.log(parentVal, childVal);
-  if (!childVal) return parentVal;
-  if (!parentVal) return childVal;
-  if (parentVal && childVal) {
-    // if (parentVal && childVal) {
-    return function render(...args) {
-      args.push([childVal.apply(this, args)]);
-      return parentVal.apply(this, args);
-    };
-
-    // return mergedParentVal;
-    // }
-
-    // return childVal;
+  // Ignore undefined values
+  if (typeof modifierValue === 'undefined') {
+    return result;
   }
-}; */
+
+  // If not using full bools ignore false values
+  if (!isFullBoolValue && modifierValue === false) {
+    return result;
+  }
+
+  // Makes block__elem_{modifierKey}
+  result += classSeparator + base + modSeparator + modifierKey;
+
+  // If not using full bools skip true `modifierValue`
+  if (isFullBoolValue || modifierValue !== true) {
+    // Makes block__elem_{modifierKey}_{modifierValue}
+    result += modValueSeparator + String(modifierValue);
+  }
+
+  return result;
+}
+
+function _stringifyModifiers(base, modifiers) {
+  var result = '';
+
+  if (!isFullModifier) {
+    base = '';
+  }
+
+  for (var modifierKey in modifiers) {
+    if (!modifiers.hasOwnProperty(modifierKey)) {
+      continue;
+    }
+
+    result += _stringifyModifier(base, modifierKey, modifiers[modifierKey]);
+  }
+
+  return result;
+}
+
+function BEM(block, element, modifiers) {
+  var className = String(block);
+
+  // case b_(block, modifiers)
+  if (element && typeof element === 'object' && typeof modifiers === 'undefined') {
+    modifiers = element;
+    element = null;
+  }
+
+  if (element) {
+    className += elementSeparator + String(element);
+  }
+
+  if (modifiers) {
+    className += _stringifyModifiers(className, modifiers);
+  }
+
+  return className + tailSpace;
+}
