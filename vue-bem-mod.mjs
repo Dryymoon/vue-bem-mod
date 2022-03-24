@@ -9,7 +9,7 @@ const isFullBoolValue = typeof options.isFullBoolValue === 'undefined' ? false :
 
 export default { install };
 
-function install(Vue, options) {
+export function install(Vue, options) {
   Vue.component('bem', {
     functional: true,
     render(_, { children, data: { directives } = {} } = {}) {
