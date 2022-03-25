@@ -1,13 +1,11 @@
+const { merge } = require('webpack-merge');
 const path = require("path")
 
-module.exports = {
-  entry: "./vue-bem-mod.mjs",
+const commonConfig = {
+  entry: "./vue-bem-mod.js",
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "vue-bem-mod.js",
-    library: "vueBemMod",
-    // libraryTarget: 'umd',
-    // globalObject: 'this',
   },
   module: {
     rules: [
@@ -21,3 +19,31 @@ module.exports = {
   mode: "development",
   devtool: 'source-map',
 }
+
+module.exports=[
+
+  // module build
+  merge(commonConfig,{
+    output: {
+      filename: 'vue-bem-mod.esm.js',
+      library: {
+        type: "module"
+      },
+    },
+    experiments: {
+      outputModule: true
+    }
+  }),
+
+  // common legacy build
+  merge(commonConfig, {
+    output: {
+      filename: 'vue-bem-mod.js',
+      library: {
+        name: "vueBemMod",
+        type: "umd"
+      },
+      globalObject: 'this',
+    }
+  }),
+];

@@ -7,8 +7,6 @@ const classSeparator = options.classSeparator || ' ';
 const isFullModifier = typeof options.isFullModifier === 'undefined' ? true : options.isFullModifier;
 const isFullBoolValue = typeof options.isFullBoolValue === 'undefined' ? false : options.isFullBoolValue;
 
-export default { install };
-
 export function install(Vue, options) {
   Vue.component('bem', {
     functional: true,
@@ -170,3 +168,5 @@ function BEM(block, element, modifiers) {
 
   return className + tailSpace;
 }
+
+export default { install };
