@@ -5,7 +5,6 @@ const commonConfig = {
   entry: "./vue-bem-mod.js",
   output: {
     path: path.resolve(__dirname, "dist"),
-    filename: "vue-bem-mod.js",
   },
   module: {
     rules: [
