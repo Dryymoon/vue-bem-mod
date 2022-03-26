@@ -3,7 +3,7 @@ const path = require("path");
 const pkj = require('./package.json');
 
 const commonConfig = {
-  entry: "./vue-bem-mod.js",
+  entry: path.resolve(__dirname, path.dirname(pkj.entry)),
   module: {
     rules: [
       {
@@ -30,10 +30,10 @@ module.exports = [
   }),
 
   // common legacy minified build
-  merge(commonConfig, {
+  pkj.browser && merge(commonConfig, {
     output: {
-      path: path.resolve(__dirname, path.dirname(pkj.main)),
-      filename: path.basename(pkj.main, path.extname(pkj.main)) + '.min' + path.extname(pkj.main),
+      path: path.resolve(__dirname, path.dirname(pkj.browser)),
+      filename: path.basename(pkj.browser),
       library: { name: "vueBemMod", type: "umd" },
       globalObject: 'this',
     },
