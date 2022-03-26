@@ -10,7 +10,7 @@
     "build": "webpack",
     "watch": "webpack --watch"
   },
-  "author": "",
+  "author": "Igor Pilipenko @dryymoon",
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.17.8",
