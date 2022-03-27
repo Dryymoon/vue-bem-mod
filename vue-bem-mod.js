@@ -6,12 +6,16 @@ const modValueSeparator = options.modValueSeparator || '_';
 const classSeparator = options.classSeparator || ' ';
 const isFullModifier = typeof options.isFullModifier === 'undefined' ? true : options.isFullModifier;
 const isFullBoolValue = typeof options.isFullBoolValue === 'undefined' ? false : options.isFullBoolValue;
+const DirectBemChildSymbol = Symbol('direct bem child');
 
 export function install(Vue, options) {
   Vue.component('bem', {
     functional: true,
-    render(_, { children, data: { directives } = {} } = {}) {
+    render(_, vNode) {
       let bemBlock;
+
+      const directives = vNode?.data?.directives;
+      const children = vNode?.children;
 
       if (directives) {
         const { arg, value, expression } = findByObjMatch(directives, { name: 'bem-block' }) || {};
@@ -40,11 +44,11 @@ function processChildrenWithBem(children, { bemBlock: parentBemBlock, bemCompone
     let bemElem;
     let bemMods;
 
-    if (child.data && child.data.__directBemComponentChild) return;
+    if (child.data && child.data[DirectBemChildSymbol]) return;
 
     if (bemComponentCall) {
       child.data = child.data || {};
-      child.data.__directBemComponentChild = true;
+      child.data[DirectBemChildSymbol] = true;
     }
 
     if (child.data) {
@@ -81,14 +85,14 @@ function processChildrenWithBem(children, { bemBlock: parentBemBlock, bemCompone
     }
 
     if (child.children) {
-      return processChildrenWithBem(
+      processChildrenWithBem(
         child.children,
         { bemBlock: newBemBlock || parentBemBlock }
       );
     }
 
     if (child.componentOptions && child.componentOptions.children) {
-      return processChildrenWithBem(
+      processChildrenWithBem(
         child.componentOptions.children,
         { bemBlock: newBemBlock || parentBemBlock }
       );

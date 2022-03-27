@@ -1,6 +1,6 @@
 {
   "name": "vue-bem-mod",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "",
   "entry": "vue-bem-mod.js",
   "main": "dist/vue-bem-mod.js",
