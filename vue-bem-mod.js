@@ -1,3 +1,5 @@
+import pkg from './package.json';
+
 const options = {};
 const tailSpace = options.tailSpace || '';
 const elementSeparator = options.elementSeparator || '__';
@@ -8,7 +10,12 @@ const isFullModifier = typeof options.isFullModifier === 'undefined' ? true : op
 const isFullBoolValue = typeof options.isFullBoolValue === 'undefined' ? false : options.isFullBoolValue;
 const DirectBemChildSymbol = Symbol('direct bem child');
 
+export const meta = pkg;
+
 export function install(Vue, options) {
+  if (install.installed) return;
+  install.installed = true;
+
   Vue.component('bem', {
     functional: true,
     render(_, vNode) {
