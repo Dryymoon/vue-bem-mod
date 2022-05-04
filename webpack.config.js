@@ -49,6 +49,6 @@ module.exports = [
       filename: path.basename(pkj.module),
       library: { type: "module" },
     },
-    experiments: { outputModule: true }
+    experiments: { outputModule: true },
   }),
 ].filter(it => it);

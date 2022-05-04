@@ -12,7 +12,7 @@ const DirectBemChildSymbol = Symbol('direct bem child');
 
 export const meta = pkg;
 
-export function install(Vue, options) {
+export function install(Vue) {
   if (install.installed) return;
   install.installed = true;
 
