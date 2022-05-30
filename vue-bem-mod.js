@@ -60,18 +60,28 @@ function processChildrenWithBem(children, { bemBlock: parentBemBlock, bemCompone
 
     if (child.data) {
       if (child.data.directives) {
-        const { arg, value, modifiers } = findByObjMatch(child.data.directives, { name: 'bem-block' }) || {}; // expression,
-        newBemBlock = arg; // || value || expression;
-        // if (arg && value) bemMods = { ...value, ...modifiers };
-        if (newBemBlock) bemMods = { ...modifiers, ...value };
+        // const { arg, value, modifiers } = findByObjMatch(child.data.directives, { name: 'bem-block' }) || {}; // expression,
+        const indexBemBlock = child.data.directives.findIndex(it => it.name === 'bem-block'); // expression,
+        if (indexBemBlock >= 0) {
+          const { arg, value, modifiers } = child.data.directives[indexBemBlock];
+          child.data.directives.splice(indexBemBlock, 1);
+          newBemBlock = arg; // || value || expression;
+          // if (arg && value) bemMods = { ...value, ...modifiers };
+          if (newBemBlock) bemMods = { ...modifiers, ...value };
+        }
       }
 
       if (child.data.directives) {
-        const { arg, value, modifiers } = findByObjMatch(child.data.directives, { name: 'bem-elem' }) || {}; // expression,
-        bemElem = arg; //  || value || expression;
-        // if (arg && value) bemMods = { ...bemMods, ...value, ...modifiers };
-        // bemMods = { ...bemMods, ...modifiers };
-        if (bemElem) bemMods = { ...bemMods, ...modifiers, ...value };
+        // const { arg, value, modifiers } = findByObjMatch(child.data.directives, { name: 'bem-elem' }) || {}; // expression,
+        const indexBemElem = child.data.directives.findIndex(it => it.name === 'bem-elem'); // expression,
+        if (indexBemElem >= 0) {
+          const { arg, value, modifiers } = child.data.directives[indexBemElem];
+          child.data.directives.splice(indexBemElem, 1);
+          bemElem = arg; //  || value || expression;
+          // if (arg && value) bemMods = { ...bemMods, ...value, ...modifiers };
+          // bemMods = { ...bemMods, ...modifiers };
+          if (bemElem) bemMods = { ...bemMods, ...modifiers, ...value };
+        }
       }
 
       // TODO Сделать чтото чтоб бем два раза не добавлял классы если бем уже посчитан...
@@ -81,6 +91,11 @@ function processChildrenWithBem(children, { bemBlock: parentBemBlock, bemCompone
         child.data.staticClass = child.data.staticClass || '';
         if (child.data.staticClass) child.data.staticClass += ' ';
         child.data.staticClass = child.data.staticClass + BEM(newBemBlock || parentBemBlock, bemElem, bemMods);
+
+        if (child.data.staticClass.includes('test')) { // as
+          console.log(child);
+        }
+
       }
 
       if (newBemBlock && !bemElem) {
