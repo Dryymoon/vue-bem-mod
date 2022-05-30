@@ -30,6 +30,5 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Dryymoon/vue-bem-mod.git"
-  },
-  "web-types": "./web-types.json"
+  }
 }
