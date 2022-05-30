@@ -91,11 +91,6 @@ function processChildrenWithBem(children, { bemBlock: parentBemBlock, bemCompone
         child.data.staticClass = child.data.staticClass || '';
         if (child.data.staticClass) child.data.staticClass += ' ';
         child.data.staticClass = child.data.staticClass + BEM(newBemBlock || parentBemBlock, bemElem, bemMods);
-
-        if (child.data.staticClass.includes('test')) { // as
-          console.log(child);
-        }
-
       }
 
       if (newBemBlock && !bemElem) {
