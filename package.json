@@ -1,31 +1,43 @@
 {
   "name": "vue-bem-mod",
-  "version": "1.0.21",
+  "version": "1.0.23",
   "description": "",
   "entry": "vue-bem-mod.js",
-  "main": "dist/vue-bem-mod.js",
-  "browser": "dist/vue-bem-mod.min.js",
-  "module": "dist/vue-bem-mod.esm.js",
+  "main": "build/vue-bem-mod.js",
+  "module": "build/vue-bem-mod.mjs",
+  "exports": {
+    ".": {
+      "require": "./build/vue-bem-mod.js",
+      "import": "./build/vue-bem-mod.mjs"
+    }
+  },
+  "files": [
+    "build/*",
+    "src/*"
+  ],
   "scripts": {
-    "build": "webpack",
-    "watch": "webpack --watch",
+    "build": "babel src --no-babelrc --out-dir build --config-file ./.babelrc.cjs --out-file-extension .js; babel src --no-babelrc --out-dir build --config-file ./.babelrc.mjs --out-file-extension .mjs",
+    "build:watch": "nodemon --watch src --exec 'npm run build'",
     "styleguide": "vue-styleguidist server",
     "styleguide:build": "vue-styleguidist build"
   },
   "author": "Igor Pilipenko @dryymoon",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.17.8",
-    "@babel/preset-env": "^7.16.11",
+    "@babel/cli": "7.21.5",
+    "@babel/preset-env": "7.22.4",
     "babel-loader": "^8.2.3",
     "vue-docgen-web-types": "^0.1.7",
     "vue-styleguidist": "^4.45.0",
-    "webpack": "^5.70.0",
-    "webpack-cli": "^4.9.2",
-    "webpack-merge": "^5.8.0"
+    "nodemon": "^3.0.1"
   },
   "peerDependencies": {
     "vue": "^2.0.0"
+  },
+  "peerDependenciesMeta": {
+    "vue": {
+      "optional": true
+    }
   },
   "repository": {
     "type": "git",
