@@ -12,37 +12,50 @@ const DirectBemChildSymbol = Symbol('direct bem child');
 
 export const meta = pkg;
 
+const Bem = {
+  functional: true,
+  render(_, vNode) {
+    let bemBlock;
+
+    const directives = vNode?.data?.directives;
+    const children = vNode?.children;
+
+    if (directives) {
+      const { arg, value, expression } = findByObjMatch(directives, { name: 'bem-block' }) || {};
+      bemBlock = arg || value || expression;
+    }
+
+    if (children) {
+      processChildrenWithBem(
+        children,
+        { bemBlock, bemComponentCall: true }
+      );
+    }
+
+    return children;
+  }
+}
+
+const bemBlock = () => undefined;
+const bemElem = () => undefined;
+
 export function install(Vue) {
   if (install.installed) return;
   install.installed = true;
 
-  Vue.component('bem', {
-    functional: true,
-    render(_, vNode) {
-      let bemBlock;
+  Vue.component('bem', Bem);
+  Vue.directive('bem-block', bemBlock);
+  Vue.directive('bem-elem', bemElem);
+}
 
-      const directives = vNode?.data?.directives;
-      const children = vNode?.children;
-
-      if (directives) {
-        const { arg, value, expression } = findByObjMatch(directives, { name: 'bem-block' }) || {};
-        bemBlock = arg || value || expression;
-      }
-
-      if (children) {
-        processChildrenWithBem(
-          children,
-          { bemBlock, bemComponentCall: true }
-        );
-      }
-
-      return children;
-    }
-  });
-
-
-  Vue.directive('bem-block', () => undefined);
-  Vue.directive('bem-elem', () => undefined);
+export const bemMixin = {
+  components: {
+    Bem
+  },
+  directives: {
+    'bem-block': bemBlock,
+    'bem-elem': bemElem
+  }
 }
 
 function processChildrenWithBem(children, { bemBlock: parentBemBlock, bemComponentCall } = {}) {
@@ -190,4 +203,7 @@ function BEM(block, element, modifiers) {
   return className + tailSpace;
 }
 
-export default { install };
+export default {
+  install,
+  ...bemMixin
+};

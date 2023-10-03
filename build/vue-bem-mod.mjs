@@ -9,44 +9,59 @@ const isFullModifier = typeof options.isFullModifier === 'undefined' ? true : op
 const isFullBoolValue = typeof options.isFullBoolValue === 'undefined' ? false : options.isFullBoolValue;
 const DirectBemChildSymbol = Symbol('direct bem child');
 export const meta = pkg;
+const Bem = {
+  functional: true,
+
+  render(_, vNode) {
+    var _vNode$data;
+
+    let bemBlock;
+    const directives = vNode === null || vNode === void 0 || (_vNode$data = vNode.data) === null || _vNode$data === void 0 ? void 0 : _vNode$data.directives;
+    const children = vNode === null || vNode === void 0 ? void 0 : vNode.children;
+
+    if (directives) {
+      const {
+        arg,
+        value,
+        expression
+      } = findByObjMatch(directives, {
+        name: 'bem-block'
+      }) || {};
+      bemBlock = arg || value || expression;
+    }
+
+    if (children) {
+      processChildrenWithBem(children, {
+        bemBlock,
+        bemComponentCall: true
+      });
+    }
+
+    return children;
+  }
+
+};
+
+const bemBlock = () => undefined;
+
+const bemElem = () => undefined;
+
 export function install(Vue) {
   if (install.installed) return;
   install.installed = true;
-  Vue.component('bem', {
-    functional: true,
-
-    render(_, vNode) {
-      var _vNode$data;
-
-      let bemBlock;
-      const directives = vNode === null || vNode === void 0 || (_vNode$data = vNode.data) === null || _vNode$data === void 0 ? void 0 : _vNode$data.directives;
-      const children = vNode === null || vNode === void 0 ? void 0 : vNode.children;
-
-      if (directives) {
-        const {
-          arg,
-          value,
-          expression
-        } = findByObjMatch(directives, {
-          name: 'bem-block'
-        }) || {};
-        bemBlock = arg || value || expression;
-      }
-
-      if (children) {
-        processChildrenWithBem(children, {
-          bemBlock,
-          bemComponentCall: true
-        });
-      }
-
-      return children;
-    }
-
-  });
-  Vue.directive('bem-block', () => undefined);
-  Vue.directive('bem-elem', () => undefined);
+  Vue.component('bem', Bem);
+  Vue.directive('bem-block', bemBlock);
+  Vue.directive('bem-elem', bemElem);
 }
+export const bemMixin = {
+  components: {
+    Bem
+  },
+  directives: {
+    'bem-block': bemBlock,
+    'bem-elem': bemElem
+  }
+};
 
 function processChildrenWithBem(children) {
   let {
@@ -209,5 +224,6 @@ function BEM(block, element, modifiers) {
 }
 
 export default {
-  install
+  install,
+  ...bemMixin
 };
