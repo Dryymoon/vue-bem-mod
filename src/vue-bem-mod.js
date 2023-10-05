@@ -17,8 +17,11 @@ const Bem = {
   render(_, vNode) {
     let bemBlock;
 
+    console.log(vNode);
+
     const directives = vNode?.data?.directives;
     const children = vNode?.children;
+    const cssModules = vNode?.props?.cssModules;
 
     if (directives) {
       const { arg, value, expression } = findByObjMatch(directives, { name: 'bem-block' }) || {};
@@ -28,7 +31,7 @@ const Bem = {
     if (children) {
       processChildrenWithBem(
         children,
-        { bemBlock, bemComponentCall: true }
+        { bemBlock, bemComponentCall: true, cssModules }
       );
     }
 
@@ -58,7 +61,7 @@ export const bemMixin = {
   }
 }
 
-function processChildrenWithBem(children, { bemBlock: parentBemBlock, bemComponentCall } = {}) {
+function processChildrenWithBem(children, { bemBlock: parentBemBlock, bemComponentCall, cssModules } = {}) {
   children.forEach((child) => {
     let newBemBlock;
     let bemElem;
@@ -103,28 +106,44 @@ function processChildrenWithBem(children, { bemBlock: parentBemBlock, bemCompone
         child.data = child.data || {};
         child.data.staticClass = child.data.staticClass || '';
         if (child.data.staticClass) child.data.staticClass += ' ';
-        child.data.staticClass = child.data.staticClass + BEM(newBemBlock || parentBemBlock, bemElem, bemMods);
+        let bemClasses = BEM(newBemBlock || parentBemBlock, bemElem, bemMods);
+        if(cssModules) {
+          bemClasses = bemClasses
+            .split(' ')
+            .map(className=>cssModules[className])
+            .filter(Boolean)
+            .join(' ');
+        }
+        child.data.staticClass = child.data.staticClass + bemClasses;
       }
 
       if (newBemBlock && !bemElem) {
         child.data = child.data || {};
         child.data.staticClass = child.data.staticClass || '';
         if (child.data.staticClass) child.data.staticClass += ' ';
-        child.data.staticClass = child.data.staticClass + BEM(newBemBlock, null, bemMods);
+        let bemClasses = BEM(newBemBlock, null, bemMods);
+        if(cssModules) {
+          bemClasses = bemClasses
+            .split(' ')
+            .map(className=>cssModules[className])
+            .filter(Boolean)
+            .join(' ');
+        }
+        child.data.staticClass = child.data.staticClass + bemClasses;
       }
     }
 
     if (child.children) {
       processChildrenWithBem(
         child.children,
-        { bemBlock: newBemBlock || parentBemBlock }
+        { bemBlock: newBemBlock || parentBemBlock, cssModules }
       );
     }
 
     if (child.componentOptions && child.componentOptions.children) {
       processChildrenWithBem(
         child.componentOptions.children,
-        { bemBlock: newBemBlock || parentBemBlock }
+        { bemBlock: newBemBlock || parentBemBlock, cssModules }
       );
     }
   });

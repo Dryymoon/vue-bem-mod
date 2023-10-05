@@ -25,11 +25,13 @@ const Bem = {
   functional: true,
 
   render(_, vNode) {
-    var _vNode$data;
+    var _vNode$data, _vNode$props;
 
     let bemBlock;
+    console.log(vNode);
     const directives = vNode === null || vNode === void 0 || (_vNode$data = vNode.data) === null || _vNode$data === void 0 ? void 0 : _vNode$data.directives;
     const children = vNode === null || vNode === void 0 ? void 0 : vNode.children;
+    const cssModules = vNode === null || vNode === void 0 || (_vNode$props = vNode.props) === null || _vNode$props === void 0 ? void 0 : _vNode$props.cssModules;
 
     if (directives) {
       const {
@@ -45,7 +47,8 @@ const Bem = {
     if (children) {
       processChildrenWithBem(children, {
         bemBlock,
-        bemComponentCall: true
+        bemComponentCall: true,
+        cssModules
       });
     }
 
@@ -79,7 +82,8 @@ const bemMixin = exports.bemMixin = {
 function processChildrenWithBem(children) {
   let {
     bemBlock: parentBemBlock,
-    bemComponentCall
+    bemComponentCall,
+    cssModules
   } = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
   children.forEach(child => {
     let newBemBlock;
@@ -140,26 +144,40 @@ function processChildrenWithBem(children) {
         child.data = child.data || {};
         child.data.staticClass = child.data.staticClass || '';
         if (child.data.staticClass) child.data.staticClass += ' ';
-        child.data.staticClass = child.data.staticClass + BEM(newBemBlock || parentBemBlock, bemElem, bemMods);
+        let bemClasses = BEM(newBemBlock || parentBemBlock, bemElem, bemMods);
+
+        if (cssModules) {
+          bemClasses = bemClasses.split(' ').map(className => cssModules[className]).filter(Boolean).join(' ');
+        }
+
+        child.data.staticClass = child.data.staticClass + bemClasses;
       }
 
       if (newBemBlock && !bemElem) {
         child.data = child.data || {};
         child.data.staticClass = child.data.staticClass || '';
         if (child.data.staticClass) child.data.staticClass += ' ';
-        child.data.staticClass = child.data.staticClass + BEM(newBemBlock, null, bemMods);
+        let bemClasses = BEM(newBemBlock, null, bemMods);
+
+        if (cssModules) {
+          bemClasses = bemClasses.split(' ').map(className => cssModules[className]).filter(Boolean).join(' ');
+        }
+
+        child.data.staticClass = child.data.staticClass + bemClasses;
       }
     }
 
     if (child.children) {
       processChildrenWithBem(child.children, {
-        bemBlock: newBemBlock || parentBemBlock
+        bemBlock: newBemBlock || parentBemBlock,
+        cssModules
       });
     }
 
     if (child.componentOptions && child.componentOptions.children) {
       processChildrenWithBem(child.componentOptions.children, {
-        bemBlock: newBemBlock || parentBemBlock
+        bemBlock: newBemBlock || parentBemBlock,
+        cssModules
       });
     }
   });
