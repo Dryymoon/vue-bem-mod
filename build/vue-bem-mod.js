@@ -28,7 +28,6 @@ const Bem = {
     var _vNode$data, _vNode$props;
 
     let bemBlock;
-    console.log(vNode);
     const directives = vNode === null || vNode === void 0 || (_vNode$data = vNode.data) === null || _vNode$data === void 0 ? void 0 : _vNode$data.directives;
     const children = vNode === null || vNode === void 0 ? void 0 : vNode.children;
     const cssModules = vNode === null || vNode === void 0 || (_vNode$props = vNode.props) === null || _vNode$props === void 0 ? void 0 : _vNode$props.cssModules;

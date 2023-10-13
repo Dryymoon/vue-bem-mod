@@ -17,8 +17,6 @@ const Bem = {
   render(_, vNode) {
     let bemBlock;
 
-    console.log(vNode);
-
     const directives = vNode?.data?.directives;
     const children = vNode?.children;
     const cssModules = vNode?.props?.cssModules;

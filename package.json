@@ -1,6 +1,6 @@
 {
   "name": "vue-bem-mod",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "",
   "entry": "src/vue-bem-mod.js",
   "main": "build/vue-bem-mod.js",
